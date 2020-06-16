@@ -39,7 +39,7 @@ def pwdGenerator():
     return password
 
 choice = int(input("Enter 1 create new password or 2 to decrypt existing password: "))
-fn = 'pwd.txt'
+fn = 'pwd2.txt'
 if choice == 1:
     acc = input("Enter Account Name: ")
     password = pwdGenerator()
@@ -59,37 +59,50 @@ if choice == 1:
         file.write('KEY: \n' + key + '\n\n')
         file.close()
 elif choice == 2:
-    file = open('pwd.txt', 'r')
-    next_ = 0
-    accounts = []
-    num = 1
-    lines = []
-    for line in file.readlines():
-        if line != '\n':
-            lines.append(line)
-    index = 0
-    for line in lines:
-        line = line.rstrip()
-        inc = 0
-        if line == "ACCOUNT:":
-            index += inc + 1
-            account = lines[index]
-            inc += 2
-            index += inc 
-            pwd = lines[index]
-            index += inc
-            key = lines[index]
-            lst = [num, account, pwd, key]
-            accounts.append(lst)
-            print('\n' + str(num) + ' ' + account)
-            num += 1
-            lines.remove('ACCOUNT:\n')
-    
-    response = int(input("Enter corresponding number for account access: "))
-    for i in range(len(accounts)):
-        if response == accounts[i][0]:
-            cipher_suite = Fernet(accounts[i][3])
-            decoded_text = cipher_suite.decrypt(accounts[i][2])
-            print(decoded_text)
-            break
-
+    try:
+        file = open('pwd2.txt', 'r')
+        next_ = 0
+        accounts = []
+        num = 1
+        lines = []
+        for line in file.readlines():
+            if line != '\n':
+                lines.append(line)
+        index = 0
+        for line in lines:
+            line = line.rstrip()
+            inc = 0
+            if line == "ACCOUNT:":
+                index += inc + 1
+                account = lines[index]
+                inc += 2
+                index += inc 
+                pwd = lines[index]
+                index += inc
+                key = lines[index]
+                lst = [num, account, pwd, key]
+                accounts.append(lst)
+                print('\n' + str(num) + ' ' + account)
+                num += 1
+                lines.remove('ACCOUNT:\n')
+        
+        response = int(input("Enter corresponding number for account access: "))
+        for i in range(len(accounts)):
+            if response == accounts[i][0]:
+                cipher_suite = Fernet(accounts[i][3])
+                decoded_text = cipher_suite.decrypt(accounts[i][2])
+                print(decoded_text)
+                break
+    except:
+        error = input("No passwords saved. Enter new account name or type 'No' to exit: ")
+        if error == "No":
+            exit()
+        password = pwdGenerator()
+        key = Fernet.generate_key()
+        cipher_suite = Fernet(key)
+        encoded_text = cipher_suite.encrypt(password)
+        file = open(fn, 'w+')
+        file.write('ACCOUNT:\n' + error + '\n')
+        file.write('PASSWORD:\n' + encoded_text + '\n')
+        file.write('KEY: \n' + key + '\n\n')
+        file.close()
